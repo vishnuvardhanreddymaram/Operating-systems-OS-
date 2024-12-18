@@ -1,0 +1,54 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <sys/wait.h> 
+#include <unistd.h>
+
+#define MAX_TEXT 1024
+struct message {
+    long msg_type;
+    char msg_text[MAX_TEXT];
+};
+
+int main() {
+    key_t key;
+    int msgid;
+    pid_t pid;
+
+    key = ftok("progfile", 65);
+    msgid = msgget(key, 0666 | IPC_CREAT);
+    if (msgid < 0) {
+        perror("msgget failed");
+        exit(1);
+    }
+    pid = fork();
+
+    if (pid < 0) {
+        perror("Fork failed");
+        exit(1);
+    }
+
+    if (pid == 0) {
+            struct message msg;
+        if (msgrcv(msgid, &msg, sizeof(msg.msg_text), 1, 0) < 0) {
+            perror("msgrcv failed");
+            exit(1);
+        }
+        printf("Child received: %s\n", msg.msg_text);
+    } else {
+        struct message msg;
+        msg.msg_type = 1;
+        strncpy(msg.msg_text, "Hello from parent process!", MAX_TEXT);
+
+        if (msgsnd(msgid, &msg, sizeof(msg.msg_text), 0) < 0) {
+            perror("msgsnd failed");
+            exit(1);
+        }
+        printf("Parent sent: %s\n", msg.msg_text);
+        wait(NULL);
+        msgctl(msgid, IPC_RMID, NULL);
+    }
+    return 0;
+}
