@@ -1,0 +1,78 @@
+#include <stdio.h>
+
+void worstFit(int blockSize[], int blockCount, int fileSize[], int fileCount) {
+    int allocation[fileCount]; // Array to store the allocated block for each file
+    int fragmentation[fileCount]; // Array to store fragmentation for each file
+
+    // Initialize allocation to -1 (not allocated)
+    for (int i = 0; i < fileCount; i++) {
+        allocation[i] = -1;
+        fragmentation[i] = 0;
+    }
+
+    // Allocate files using the worst-fit strategy
+    for (int i = 0; i < fileCount; i++) {
+        int worstIdx = -1;
+
+        // Find the largest block that can accommodate the file
+        for (int j = 0; j < blockCount; j++) {
+            if (blockSize[j] >= fileSize[i]) {
+                if (worstIdx == -1 || blockSize[j] > blockSize[worstIdx]) {
+                    worstIdx = j;
+                }
+            }
+        }
+
+        // If a suitable block is found
+        if (worstIdx != -1) {
+            allocation[i] = worstIdx + 1; // Allocate block (1-based index)
+            fragmentation[i] = blockSize[worstIdx] - fileSize[i]; // Calculate fragmentation
+            blockSize[worstIdx] -= fileSize[i]; // Update block size
+        }
+    }
+
+    // Display the results
+    printf("\nFile_no\tFile_size\tBlock_no\tBlock_size\tFragment\n");
+    for (int i = 0; i < fileCount; i++) {
+        printf("%d\t%d\t\t", i + 1, fileSize[i]);
+        if (allocation[i] != -1) {
+            printf("%d\t\t%d\t\t%d\n", allocation[i], fileSize[i] + fragmentation[i], fragmentation[i]);
+        } else {
+            printf("Not Allocated\t\t-\t\t-\n");
+        }
+    }
+}
+
+int main() {
+    int blockCount, fileCount;
+
+    // Input the number of blocks
+    printf("Enter the number of blocks: ");
+    scanf("%d", &blockCount);
+
+    // Input the number of files
+    printf("Enter the number of files: ");
+    scanf("%d", &fileCount);
+
+    int blockSize[blockCount], fileSize[fileCount];
+
+    // Input the size of each block
+    printf("Enter the size of the blocks:\n");
+    for (int i = 0; i < blockCount; i++) {
+        printf("Block %d: ", i + 1);
+        scanf("%d", &blockSize[i]);
+    }
+
+    // Input the size of each file
+    printf("Enter the size of the files:\n");
+    for (int i = 0; i < fileCount; i++) {
+        printf("File %d: ", i + 1);
+        scanf("%d", &fileSize[i]);
+    }
+
+    // Call the Worst Fit function
+    printf("\nMemory Management Scheme - Worst Fit\n");
+    worstFit(blockSize, blockCount, fileSize, fileCount);
+
+    return 0;
+}
