@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define BLOCK_SIZE 4
+#define NUM_BLOCKS 10
+
+int main() {
+    int file[NUM_BLOCKS][BLOCK_SIZE];
+    int index_block[NUM_BLOCKS];
+    for (int i = 0; i < NUM_BLOCKS; i++) {
+        index_block[i] = -1;
+    }
+
+    // Initialize file blocks
+    for (int i = 0; i < NUM_BLOCKS; i++) {
+        for (int j = 0; j < BLOCK_SIZE; j++) {
+            file[i][j] = -1;
+        }
+    }
+
+    // Simulate file allocation
+    int file_blocks[] = {2, 5, 8}; // example blocks allocated to file
+    int num_file_blocks = sizeof(file_blocks) / sizeof(file_blocks[0]);
+    for (int i = 0; i < num_file_blocks; i++) {
+        index_block[i] = file_blocks[i];
+        for (int j = 0; j < BLOCK_SIZE; j++) {
+            file[file_blocks[i]][j] = i * BLOCK_SIZE + j;
+        }
+    }
+
+    // Print file allocation
+    printf("Index Block:\n");
+    for (int i = 0; i < num_file_blocks; i++) {
+        printf("%d ", index_block[i]);
+    }
+    printf("\nFile Blocks:\n");
+    for (int i = 0; i < num_file_blocks; i++) {
+        int block = index_block[i];
+        if (block != -1) {
+            printf("Block %d: ", block);
+            for (int j = 0; j < BLOCK_SIZE; j++) {
+                printf("%d ", file[block][j]);
+            }
+            printf("\n");
+        }
+    }
+
+    return 0;
+}
