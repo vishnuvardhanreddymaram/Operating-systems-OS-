@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define NUM_BLOCKS 10
+
+struct Block {
+    int data;
+    int next;
+};
+
+int main() {
+    struct Block file[NUM_BLOCKS];
+    int start_block = 0, end_block = 0;
+
+    // Initialize blocks
+    for (int i = 0; i < NUM_BLOCKS; i++) {
+        file[i].data = -1;
+        file[i].next = -1;
+    }
+
+    // Simulate file allocation
+    int file_blocks[] = {2, 5, 8}; // example blocks allocated to file
+    int num_file_blocks = sizeof(file_blocks) / sizeof(file_blocks[0]);
+    for (int i = 0; i < num_file_blocks; i++) {
+        file[file_blocks[i]].data = i;
+        if (i > 0) {
+            file[file_blocks[i - 1]].next = file_blocks[i];
+        }
+        end_block = file_blocks[i];
+    }
+    file[end_block].next = -1;
+
+    // Print file allocation
+    printf("File blocks:\n");
+    int block = start_block;
+    while (block != -1) {
+        printf("Block %d: Data %d, Next %d\n", block, file[block].data, file[block].next);
+        block = file[block].next;
+    }
+
+    return 0;
+}
