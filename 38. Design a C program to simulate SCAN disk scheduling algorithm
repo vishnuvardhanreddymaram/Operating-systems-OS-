@@ -1,0 +1,51 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define NUM_REQUESTS 8
+
+// Function to simulate SCAN disk scheduling algorithm
+void scan_disk_scheduling(int requests[], int start, int end) {
+    int seek_count = 0;
+    int current_position = start;
+
+    // Sort the requests in increasing order
+    for (int i = 0; i < NUM_REQUESTS - 1; i++) {
+        for (int j = i + 1; j < NUM_REQUESTS; j++) {
+            if (requests[i] > requests[j]) {
+                int temp = requests[i];
+                requests[i] = requests[j];
+                requests[j] = temp;
+            }
+        }
+    }
+
+    printf("Disk scheduling using SCAN:\n");
+
+    // Serve requests in one direction (left to right)
+    for (int i = 0; i < NUM_REQUESTS; i++) {
+        if (requests[i] >= start) {
+            seek_count += abs(requests[i] - current_position);
+            current_position = requests[i];
+            printf("Served request: %d\n", requests[i]);
+        }
+    }
+
+    // Serve remaining requests in the reverse direction (right to left)
+    for (int i = NUM_REQUESTS - 1; i >= 0; i--) {
+        if (requests[i] < start) {
+            seek_count += abs(requests[i] - current_position);
+            current_position = requests[i];
+            printf("Served request: %d\n", requests[i]);
+        }
+    }
+
+    printf("Total seek count: %d\n", seek_count);
+}
+
+int main() {
+    int requests[NUM_REQUESTS] = {98, 183, 41, 122, 14, 124, 65, 67};
+    int start = 53;  // Initial position of the disk arm
+    int end = 199;   // Maximum track number
+    scan_disk_scheduling(requests, start, end);
+    return 0;
+}
