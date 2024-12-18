@@ -1,0 +1,166 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define FILENAME "employee.dat"
+
+typedef struct {
+    int id;
+    char name[50];
+    float salary;
+} Employee;
+
+// Function to add an employee
+void addEmployee() {
+    FILE *file = fopen(FILENAME, "ab");  // Open file in append binary mode
+    if (!file) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    Employee emp;
+    printf("Enter Employee ID: ");
+    scanf("%d", &emp.id);
+    getchar();  // To consume the newline character left by scanf
+    printf("Enter Employee Name: ");
+    fgets(emp.name, sizeof(emp.name), stdin);
+    emp.name[strcspn(emp.name, "\n")] = '\0';  // Remove the newline at the end
+    printf("Enter Employee Salary: ");
+    scanf("%f", &emp.salary);
+
+    fwrite(&emp, sizeof(Employee), 1, file);
+    fclose(file);
+    printf("Employee added successfully!\n");
+}
+
+// Function to display all employees
+void displayEmployees() {
+    FILE *file = fopen(FILENAME, "rb");  // Open file in read binary mode
+    if (!file) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    Employee emp;
+    printf("Employee Details:\n");
+    while (fread(&emp, sizeof(Employee), 1, file)) {
+        printf("ID: %d, Name: %s, Salary: %.2f\n", emp.id, emp.name, emp.salary);
+    }
+
+    fclose(file);
+}
+
+// Function to modify an employee's details by their ID
+void modifyEmployee() {
+    FILE *file = fopen(FILENAME, "rb+");  // Open file in read and write binary mode
+    if (!file) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    int id;
+    printf("Enter Employee ID to modify: ");
+    scanf("%d", &id);
+
+    Employee emp;
+    int found = 0;
+    while (fread(&emp, sizeof(Employee), 1, file)) {
+        if (emp.id == id) {
+            printf("Employee found! Enter new details.\n");
+            printf("Enter new Name: ");
+            getchar();  // Consume the newline character
+            fgets(emp.name, sizeof(emp.name), stdin);
+            emp.name[strcspn(emp.name, "\n")] = '\0';  // Remove newline
+            printf("Enter new Salary: ");
+            scanf("%f", &emp.salary);
+
+            fseek(file, -sizeof(Employee), SEEK_CUR);  // Move the file pointer back to the current employee
+            fwrite(&emp, sizeof(Employee), 1, file);  // Write updated data
+            found = 1;
+            printf("Employee details updated successfully!\n");
+            break;
+        }
+    }
+
+    if (!found) {
+        printf("Employee with ID %d not found.\n", id);
+    }
+
+    fclose(file);
+}
+
+// Function to delete an employee by ID
+void deleteEmployee() {
+    FILE *file = fopen(FILENAME, "rb");  // Open file in read binary mode
+    if (!file) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    FILE *tempFile = fopen("temp.dat", "wb");  // Temporary file for storing data
+    if (!tempFile) {
+        printf("Error opening temporary file.\n");
+        fclose(file);
+        return;
+    }
+
+    int id;
+    printf("Enter Employee ID to delete: ");
+    scanf("%d", &id);
+
+    Employee emp;
+    int found = 0;
+    while (fread(&emp, sizeof(Employee), 1, file)) {
+        if (emp.id != id) {
+            fwrite(&emp, sizeof(Employee), 1, tempFile);
+        } else {
+            found = 1;
+        }
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    if (found) {
+        remove(FILENAME);  // Delete the original file
+        rename("temp.dat", FILENAME);  // Rename the temp file to original
+        printf("Employee with ID %d deleted successfully!\n", id);
+    } else {
+        printf("Employee with ID %d not found.\n", id);
+        remove("temp.dat");  // Remove temp file if no employee is deleted
+    }
+}
+
+int main() {
+    int choice;
+    while (1) {
+        printf("\nEmployee Management System\n");
+        printf("1. Add Employee\n");
+        printf("2. Display All Employees\n");
+        printf("3. Modify Employee\n");
+        printf("4. Delete Employee\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                addEmployee();
+                break;
+            case 2:
+                displayEmployees();
+                break;
+            case 3:
+                modifyEmployee();
+                break;
+            case 4:
+                deleteEmployee();
+                break;
+            case 5:
+                printf("Exiting program...\n");
+                return 0;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+}
