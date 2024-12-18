@@ -1,0 +1,55 @@
+#include <stdio.h>
+struct Process {
+    int pid;
+    int bt;
+    int wt;
+    int tat;
+    int remaining_bt;
+};
+void roundRobin(struct Process p[], int n, int quantum) {
+    int currentTime = 0;
+    int completed = 0;
+
+    while (completed != n) {
+        for (int i = 0; i < n; i++) {
+            if (p[i].remaining_bt > 0) {
+                if (p[i].remaining_bt > quantum) {
+                    currentTime += quantum;
+                    p[i].remaining_bt -= quantum;
+                } else {
+                    currentTime += p[i].remaining_bt;
+                    p[i].wt = currentTime - p[i].bt;
+                    p[i].tat = p[i].wt + p[i].bt;
+                    p[i].remaining_bt = 0;
+                    completed++;
+                }
+            }
+        }
+    }
+}
+
+int main() {
+    int n, quantum;
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+    struct Process p[n];
+    for (int i = 0; i < n; i++) {
+        printf("Enter Burst Time for Process P%d: ", i + 1);
+        p[i].pid = i + 1;
+        scanf("%d", &p[i].bt);
+        p[i].remaining_bt = p[i].bt;
+    }
+    printf("Enter Time Quantum: ");
+    scanf("%d", &quantum);
+    roundRobin(p, n, quantum);
+    float totalTAT = 0, totalWT = 0;
+    printf("\nProcess\tBurst Time\tWaiting Time\tTurnaround Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d\t%d\t\t%d\t\t%d\n", p[i].pid, p[i].bt, p[i].wt, p[i].tat);
+        totalTAT += p[i].tat;
+        totalWT += p[i].wt;
+    }
+    printf("\nAverage Turnaround Time: %.2f", totalTAT / n);
+    printf("\nAverage Waiting Time: %.2f\n", totalWT / n);
+    return 0;
+}
