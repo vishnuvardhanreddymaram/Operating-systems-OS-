@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main() {
+    int fd;
+    char buffer[100];
+
+    // Create a new file
+    fd = open("example.txt", O_CREAT | O_WRONLY, 0644);
+    if (fd == -1) {
+        perror("Error creating file");
+        return 1;
+    }
+
+    // Write to the file
+    write(fd, "Hello, World!\n", 14);
+
+    // Close the file
+    close(fd);
+
+    // Read from the file
+    fd = open("example.txt", O_RDONLY);
+    if (fd == -1) {
+        perror("Error opening file");
+        return 1;
+    }
+
+    read(fd, buffer, 100);
+    printf("File contents: %s", buffer);
+
+    // Close the file
+    close(fd);
+
+    return 0;
+}
