@@ -1,0 +1,39 @@
+#include <stdio.h>
+
+#define FRAME_COUNT 3
+#define PAGE_COUNT 8
+
+int frames[FRAME_COUNT];
+
+int main() {
+    int page_ref[PAGE_COUNT] = {7, 0, 1, 2, 0, 3, 0, 4};
+    int page_faults = 0, i, j, flag, pos, ref_page;
+
+    for (i = 0; i < FRAME_COUNT; i++)
+        frames[i] = -1;
+
+    for (i = 0; i < PAGE_COUNT; i++) {
+        ref_page = page_ref[i];
+        flag = 0;
+
+        for (j = 0; j < FRAME_COUNT; j++) {
+            if (frames[j] == ref_page) {
+                flag = 1;
+                break;
+            }
+        }
+
+        if (flag == 0) {
+            page_faults++;
+            frames[i % FRAME_COUNT] = ref_page;
+        }
+
+        printf("Frames: ");
+        for (j = 0; j < FRAME_COUNT; j++)
+            printf("%d ", frames[j]);
+        printf("\n");
+    }
+
+    printf("Total page faults: %d\n", page_faults);
+    return 0;
+}
