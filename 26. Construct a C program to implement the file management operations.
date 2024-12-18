@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main() {
+    int fd;
+
+    // Create and write to a file
+    fd = open("file_ops.txt", O_CREAT | O_WRONLY, 0644);
+    if (fd == -1) {
+        perror("Error creating file");
+        return 1;
+    }
+
+    write(fd, "File management in C\n", 21);
+    close(fd);
+
+    // Read from the file
+    fd = open("file_ops.txt", O_RDONLY);
+    if (fd == -1) {
+        perror("Error opening file");
+        return 1;
+    }
+
+    char buffer[100];
+    read(fd, buffer, 100);
+    printf("File contents: %s", buffer);
+    close(fd);
+
+    // Remove the file
+    if (unlink("file_ops.txt") == -1) {
+        perror("Error deleting file");
+        return 1;
+    }
+
+    return 0;
+}
