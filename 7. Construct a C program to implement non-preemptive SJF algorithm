@@ -1,0 +1,61 @@
+#include <stdio.h>
+
+struct Process {
+    int pid;
+    int bt;
+    int ct;
+    int tat;
+    int wt;
+};
+
+void sortByBurstTime(struct Process p[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (p[j].bt > p[j + 1].bt) {
+                struct Process temp = p[j];
+                p[j] = p[j + 1];
+                p[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int main() {
+    int n;
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    struct Process p[n];
+
+    for (int i = 0; i < n; i++) {
+        printf("Enter Burst Time for Process P%d: ", i + 1);
+        p[i].pid = i + 1;
+        scanf("%d", &p[i].bt);
+    }
+
+    sortByBurstTime(p, n);
+
+    int currentTime = 0;
+    for (int i = 0; i < n; i++) {
+        p[i].ct = currentTime + p[i].bt;
+        p[i].tat = p[i].ct;
+        p[i].wt = p[i].tat - p[i].bt;
+        currentTime = p[i].ct;
+    }
+
+    printf("\nProcess\tBurst Time\tCompletion Time\tTurnaround Time\tWaiting Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d\t%d\t\t%d\t\t%d\t\t%d\n", p[i].pid, p[i].bt, p[i].ct, p[i].tat, p[i].wt);
+    }
+
+    float totalTAT = 0, totalWT = 0;
+    for (int i = 0; i < n; i++) {
+        totalTAT += p[i].tat;
+        totalWT += p[i].wt;
+    }
+    printf("\nAverage Turnaround Time: %.2f", totalTAT / n);
+    printf("\nAverage Waiting Time: %.2f\n", totalWT / n);
+
+    return 0;
+}
