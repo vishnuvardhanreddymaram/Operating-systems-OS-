@@ -1,0 +1,44 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_RECORDS 10
+
+struct record {
+    int id;
+    char data[100];
+};
+
+int main() {
+    struct record records[MAX_RECORDS];
+    FILE *file;
+    int n, i;
+
+    // Creating records
+    for (i = 0; i < MAX_RECORDS; i++) {
+        records[i].id = i;
+        sprintf(records[i].data, "Record %d", i);
+    }
+
+    // Writing records to file
+    file = fopen("records.dat", "wb");
+    if (file == NULL) {
+        perror("Error opening file");
+        return 1;
+    }
+    fwrite(records, sizeof(struct record), MAX_RECORDS, file);
+    fclose(file);
+
+    // Reading records from file sequentially
+    file = fopen("records.dat", "rb");
+    if (file == NULL) {
+        perror("Error opening file");
+        return 1;
+    }
+    for (i = 0; i < MAX_RECORDS; i++) {
+        fread(&records[i], sizeof(struct record), 1, file);
+        printf("Record ID: %d, Data: %s\n", records[i].id, records[i].data);
+    }
+    fclose(file);
+
+    return 0;
+}
