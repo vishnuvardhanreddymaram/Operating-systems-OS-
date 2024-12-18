@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <dirent.h>
+
+int main() {
+    int fd;
+    struct stat fileStat;
+    DIR *dir;
+    struct dirent *entry;
+
+    // Open and read file
+    fd = open("example.txt", O_RDONLY);
+    if (fd == -1) {
+        perror("Error opening file");
+        return 1;
+    }
+
+    fcntl(fd, F_GETFL);
+
+    // Get file status
+    if (stat("example.txt", &fileStat) == -1) {
+        perror("Error getting file status");
+        return 1;
+    }
+
+    printf("File size: %ld bytes\n", fileStat.st_size);
+
+    // Open and read directory
+    dir = opendir(".");
+    if (dir == NULL) {
+        perror("Error opening directory");
+        return 1;
+    }
+
+    while ((entry = readdir(dir)) != NULL) {
+        printf("%s\n", entry->d_name);
+    }
+
+    closedir(dir);
+    close(fd);
+
+    return 0;
+}
